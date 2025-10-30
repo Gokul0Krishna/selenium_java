@@ -12,7 +12,7 @@ import java.time.Duration;
 public class jproject {      
 String EMAIL="";
 String PASSWORD="";
-String jobname="+";
+String jobname="";
 String PNO="";
 int maxapplications=2;
 
