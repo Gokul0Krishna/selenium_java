@@ -2,12 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Neural Network Training Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script defer src="script.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neural Network Dashboard</title>
 </head>
 <body>
-  <h2>Neural Network Training Progress</h2>
-  <canvas id="lossChart" width="600" height="400"></canvas>
+  <h1>Neural Network Trainer</h1>
+
+  <form id="trainForm">
+    <label for="action">Choose action:</label>
+    <select id="action" name="selected_action">
+      <option value="Regression">Regression</option>
+      <option value="Classification">Classification</option>
+    </select>
+    <br><br>
+    <button type="submit">Submit</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script src="js/app.js"></script>
 </body>
 </html>
+
