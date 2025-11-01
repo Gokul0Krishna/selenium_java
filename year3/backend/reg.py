@@ -9,6 +9,7 @@ import torch.nn as nn
 import torch.optim as optim
 from sklearn.metrics import root_mean_squared_error
 import matplotlib.pyplot as pl
+import statistics
 
 class Customdataset(Dataset):
     def __init__(self,a,b):
@@ -39,6 +40,7 @@ class Regression():
     def __init__(self):
         self.lc = LabelEncoder()
         self.sc = StandardScaler()
+        self.x = None 
 
     def load_transform_data(self):
         df= pd.read_csv(r'C:\Users\ASUS\OneDrive\Desktop\code\cp\javaproject\year3\Student_Performance.csv')
@@ -47,9 +49,9 @@ class Regression():
         label = self.lc.fit_transform(df['Extracurricular Activities'])
         x.drop('Extracurricular Activities',axis=1,inplace=True)
         x['Extracurricular Activities']=list(label)
-        x=np.array(x)
+        self.x=np.array(x)
         y=np.array(y).reshape(-1, 1)
-        x=self.sc.fit_transform(X=x)
+        x=self.sc.fit_transform(X=self.x)
         y=self.sc.fit_transform(X=y)
         Xtrain,Xtest,ytrain,ytest = train_test_split(x,y,test_size=0.2,random_state=42)
         Xtest,Xval,ytest,yval = train_test_split(Xtest,ytest,test_size=0.5,random_state=42)
@@ -60,6 +62,40 @@ class Regression():
         testdl=DataLoader(testdataset,batch_size=16,shuffle=True)
         valdl=DataLoader(valdataset,batch_size=16,shuffle=True)
         return traindl,testdl,valdl
+    def train(self,traindl,valdl,learing_rate,epoches):
+        model=regression(x=self.x)
+        optimizer = torch.optim.SGD(model.parameters(), lr=learing_rate)
+        critetion=nn.MSELoss()
+        train_acc,train_loss=[],[]
+        val_acc,val_loss=[],[]
+        for i in range(epoches):
+            l1,l2=0,0
+            model.train()
+            ta,tl=[],[]
+            for values,labels in traindl:
+                ypred = model(values)
+                tloss = critetion(ypred,labels)
+                optimizer.zero_grad()
+                tloss.backward()        
+                optimizer.step()
+                l1=labels.unsqueeze(1)
+                tl.append(int(tloss.detach().numpy()))
+                ta.append(root_mean_squared_error(l1.view(-1),ypred.detach().numpy()))
+            train_acc.append(statistics.mean(ta))
+            train_loss.append(statistics.mean(tl))
+
+            va,vl = [],[]
+            model.eval()   
+            with torch.no_grad():
+                for values,labels in valdl:
+                    ypred = model(values)
+                    tloss = critetion(ypred,labels)
+                    l2=labels.unsqueeze(1)
+                    vl.append(int(tloss.detach().numpy()))
+                    va.append(root_mean_squared_error(l2.view(-1),ypred.detach().numpy()))
+                val_acc.append(statistics.mean(va))
+                val_loss.append(statistics.mean(vl))
+        return train_acc,train_loss,val_acc,val_loss
 
 if __name__ == '__main__':
     obj = Regression()
