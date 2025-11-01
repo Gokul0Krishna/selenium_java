@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dynamic Task Runner - FastAPI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+    }
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+      color: green;
+    }
+    button {
+      margin-top: 10px;
+      padding: 8px 15px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>Select a Task to Run:</h2>
+
+  <select id="task">
+    <option value="taskA">Task A</option>
+    <option value="taskB">Task B</option>
+    <option value="taskC">Task C</option>
+  </select>
+
+  <button id="runBtn">Run Task</button>
+
+  <p id="status"></p>
+
+  <script>
+    document.getElementById("runBtn").addEventListener("click", async () => {
+      const task = document.getElementById("task").value;
+      const status = document.getElementById("status");
+      status.innerText = "Processing... Please wait.";
+
+      try {
+        const res = await fetch("http://127.0.0.1:8000/run_task", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ task: task })
+        });
+
+        const data = await res.json();
+        status.innerText = data.message;
+      } catch (error) {
+        status.innerText = "❌ Error running the task.";
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
