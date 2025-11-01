@@ -99,4 +99,6 @@ class Regression():
 
 if __name__ == '__main__':
     obj = Regression()
-    obj.load_transform_data()
+    traindl,testdl,valdl=obj.load_transform_data()
+    train_acc,train_loss,val_acc,val_loss = obj.train(traindl=traindl,valdl=valdl,learing_rate=0.001,epoches=5)
+    print(train_acc[-1],train_loss[-1],val_acc[-1],val_loss[-1])
