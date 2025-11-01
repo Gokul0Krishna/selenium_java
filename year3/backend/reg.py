@@ -38,17 +38,19 @@ class Regression():
 
     def __init__(self):
         self.lc = LabelEncoder()
-        self.sc = StandardScaler
+        self.sc = StandardScaler()
 
     def load_transform_data(self):
-        df= pd.read_csv('year3/Student_Performance.csv')
+        df= pd.read_csv(r'C:\Users\ASUS\OneDrive\Desktop\code\cp\javaproject\year3\Student_Performance.csv')
         y=df.iloc[:,-1]
         x=df.iloc[:,0:5]
         label = self.lc.fit_transform(df['Extracurricular Activities'])
         x.drop('Extracurricular Activities',axis=1,inplace=True)
         x['Extracurricular Activities']=list(label)
-        x=self.sc.fit_transform(np.array(x))
-        y=self.sc.fit_transform(np.array(y).reshape(-1, 1))
+        x=np.array(x)
+        y=np.array(y).reshape(-1, 1)
+        x=self.sc.fit_transform(X=x)
+        y=self.sc.fit_transform(X=y)
         Xtrain,Xtest,ytrain,ytest = train_test_split(x,y,test_size=0.2,random_state=42)
         Xtest,Xval,ytest,yval = train_test_split(Xtest,ytest,test_size=0.5,random_state=42)
         traindataset=Customdataset(a=Xtrain,b=ytrain)
@@ -58,3 +60,7 @@ class Regression():
         testdl=DataLoader(testdataset,batch_size=16,shuffle=True)
         valdl=DataLoader(valdataset,batch_size=16,shuffle=True)
         return traindl,testdl,valdl
+
+if __name__ == '__main__':
+    obj = Regression()
+    obj.load_transform_data()

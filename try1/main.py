@@ -23,3 +23,4 @@ async def run_task(data: dict, background_tasks: BackgroundTasks):
     task_name = data.get("task", "unknown")
     background_tasks.add_task(background_task, task_name)
     return JSONResponse({"message": f"✅ {task_name} started in background!"})
+    

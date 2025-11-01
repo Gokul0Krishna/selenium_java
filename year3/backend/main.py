@@ -1,33 +1,18 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Request, BackgroundTasks
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
-from fastapi.responses import FileResponse
+from fastapi.templating import Jinja2Templates
+import time
 from reg import Regression
-import os
-
 app = FastAPI()
 reg=Regression()
+templates = Jinja2Templates(directory=r"C:\Users\ASUS\OneDrive\Desktop\code\cp\javaproject\year3\frontend\templates")
 
-# Allow frontend JS to talk to backend
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
-frontend_dir = r"C:\Users\ASUS\OneDrive\Desktop\code\cp\javaproject\year3\frontend"
-app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
-
-class TrainRequest(BaseModel):
-    action: str
-
-@app.get("/")
-def home():
-    return FileResponse(os.path.join(frontend_dir, "index.html"))
-
-@app.post("/train")
-def train_endpoint(req: TrainRequest):
-    traindl,testdl,valdl = reg.load_transform_data()
-    print(traindl[:5])
+@app.post("/data_process")
+async def run_task(data: dict, background_tasks: BackgroundTasks):
+    background_tasks.add_task(reg.load_transform_data(),'regression' )
+    return JSONResponse({"message": f"✅ regression started in background!"})

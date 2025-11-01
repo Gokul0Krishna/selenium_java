@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neural Network Dashboard</title>
+</head>
+<body>
+  <h1>Neural Network Trainer</h1>
+  <h2>Select process to run:</h2>
+  <select id="process">
+    <option value="reg">Regression</option>
+    <option value="class">Classification</option>
+  </select>
+  <button id="runBtn">Run Task</button>
+  <p id="status"></p>
+  <script> 
+    document.getElementById("runBtn").addEventListener("click", async () => {
+      const task = document.getElementById("process").value;
+      const status = document.getElementById("status");
+      status.innerText = "Setting up the data... Please wait.";
+
+      try {
+        const res = await fetch("http://127.0.0.1:8000/data_process", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ task: task })
+        });
+
+        const data = await res.json();
+        status.innerText = data.message;
+      } catch (error) {
+        status.innerText = "❌ Error running the task.";
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
+
