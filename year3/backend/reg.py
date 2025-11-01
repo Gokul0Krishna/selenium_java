@@ -41,7 +41,7 @@ class Regression():
         self.sc = StandardScaler
 
     def load_transform_data(self):
-        df= pd.read_csv('Student_Performance.csv')
+        df= pd.read_csv('year3/Student_Performance.csv')
         y=df.iloc[:,-1]
         x=df.iloc[:,0:5]
         label = self.lc.fit_transform(df['Extracurricular Activities'])
