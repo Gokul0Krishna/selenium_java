@@ -1,4 +1,4 @@
-    document.getElementById("trainForm").addEventListener("submit", async function (e) {
+document.getElementById("trainForm").addEventListener("submit", async function (e) {
   e.preventDefault(); // prevent normal form submit
 
   const selectedAction = document.getElementById("action").value;

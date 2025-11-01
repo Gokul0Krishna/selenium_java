@@ -17,15 +17,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app.mount("/frontend", StaticFiles(directory=r"C:\Users\ASUS\OneDrive\Desktop\code\cp\javaproject\year3\frontend"), name="frontend")
+frontend_dir = r"C:\Users\ASUS\OneDrive\Desktop\code\cp\javaproject\year3\frontend"
+app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
 class TrainRequest(BaseModel):
     action: str
 
 @app.get("/")
 def home():
-    return FileResponse(r'C:\Users\ASUS\OneDrive\Desktop\code\cp\javaproject\year3\frontend\index.html')
-
+    return FileResponse(os.path.join(frontend_dir, "index.html"))
 
 @app.post("/train")
 def train_endpoint(req: TrainRequest):
