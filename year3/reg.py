@@ -10,6 +10,7 @@ import torch.optim as optim
 from sklearn.metrics import root_mean_squared_error
 import matplotlib.pyplot as pl
 import statistics
+import matplotlib.pyplot as plt
 
 class Customdataset(Dataset):
     def __init__(self,a,b):
@@ -99,7 +100,35 @@ class Regression():
                 val_loss.append(statistics.mean(vl))
         return train_acc,train_loss,val_acc,val_loss
     
-
+    def plot_train_val(self,epoches,train_loss,train_acc,val_loss,val_acc):
+        fig, ax1 = plt.subplots(figsize=(8, 5))
+        ax1.plot(range(epoches), train_loss, color='tab:red', label='Loss')
+        ax1.set_xlabel("Epochs")
+        ax1.set_ylabel("MSE Loss", color='tab:red')
+        ax1.tick_params(axis='y', labelcolor='tab:red')
+        ax2 = ax1.twinx()
+        ax2.plot(range(epoches), train_acc, color='tab:blue', label='Accuracy')
+        ax2.set_ylabel("Accuracy", color='tab:blue')
+        ax2.tick_params(axis='y', labelcolor='tab:blue')
+        plt.title("Training Loss and Accuracy vs Epochs")
+        fig.tight_layout()
+        train_plot_path = f"static/plots/regression_trian_plot.png"
+        plt.savefig(train_plot_path)
+        plt.close()
+        fig, ax1 = plt.subplots(figsize=(8, 5))
+        ax1.plot(range(epoches), val_loss, color='tab:red', label='Loss')
+        ax1.set_xlabel("Epochs")
+        ax1.set_ylabel("MSE Loss", color='tab:red')
+        ax1.tick_params(axis='y', labelcolor='tab:red')
+        ax2 = ax1.twinx()
+        ax2.plot(range(epoches), val_acc, color='tab:blue', label='Accuracy')
+        ax2.set_ylabel("Accuracy", color='tab:blue')
+        ax2.tick_params(axis='y', labelcolor='tab:blue')
+        plt.title("validation Loss and Accuracy vs Epochs")
+        val_plot_path = f"static/plots/regression_val_plot.png"
+        plt.savefig(val_plot_path)
+        plt.close()
+        return train_plot_path,val_plot_path
 
 if __name__ == '__main__':
     obj = Regression()

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Regression Model Training</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>Regression Model Configuration</h1>
+
+    <form action="/Regression" method="POST">
+      <label for="epochs">Epochs:</label>
+      <input type="number" name="epochs" id="epochs" value="10" min="1" required>
+
+      <label for="learning_rate">Learning Rate:</label>
+      <input type="number" step="0.0001" name="learning_rate" id="learning_rate" value="0.001" required>
+
+      <button type="submit">Train Model</button>
+    </form>
+
+    {% if train_plot_path %}
+      <div class="plot-section">
+        <h3>Training Plot</h3>
+        <img src="{{ url_for('static', filename=train_plot_path.split('static/')[1]) }}" width="450">
+      </div>
+    {% endif %}
+
+    {% if val_plot_path %}
+      <div class="plot-section">
+        <h3>Validation Plot</h3>
+        <img src="{{ url_for('static', filename=val_plot_path.split('static/')[1]) }}" width="450">
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
