@@ -70,6 +70,7 @@
       margin-top: 10px;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <h1>🧠 Neural Network Dashboard</h1>
@@ -87,7 +88,7 @@
     <button type="submit">Run Process</button>
     <p id="statusProcess"></p>
   </form>
-
+  
   <!-- ========================== -->
   <!-- FORM 2: Training Settings -->
   <!-- ========================== -->
@@ -102,6 +103,8 @@
     <button type="submit">Start Training</button>
     <p id="statusTrain"></p>
   </form>
+  <h3>📊 Training Progress</h3>
+  <canvas id="trainingChart" width="600" height="400"></canvas>
 
   <script>
     // =====================
@@ -129,29 +132,98 @@
     });
 
     // =====================
-    // FORM 2: Training Form
-    // =====================
-    document.getElementById("trainForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const epochs = document.getElementById("epochs").value;
-      const lr = document.getElementById("lr").value;
-      const status = document.getElementById("statusTrain");
-      status.innerText = "🔄 Starting training...";
+// FORM 2: Training Form
+// =====================
+document.getElementById("trainForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const epochs = document.getElementById("epochs").value;
+  const lr = document.getElementById("lr").value;
+  const status = document.getElementById("statusTrain");
+  status.innerText = "🔄 Starting training...";
 
-      try {
-        const res = await fetch("http://127.0.0.1:8000/train", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ epochs: epochs, lr: lr })
-        });
-
-        const data = await res.json();
-        status.innerText = data.message;
-      } catch (err) {
-        status.innerText = "❌ Failed to start training.";
-        console.error(err);
-      }
+  try {
+    const res = await fetch("http://127.0.0.1:8000/train", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ epochs: epochs, lr: lr })
     });
+
+    const data = await res.json();
+    status.innerText = data.message;
+
+    if (data.train_loss && data.train_acc) {
+      // Plot the results
+      {{train_acc}}
+      {{train_loss}}
+      const ctx = document.getElementById("trainingChart").getContext("2d");
+
+      // Destroy previous chart instance if it exists
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: data.epochs,
+          datasets: [
+            {
+              label: "Training Loss",
+              data: data.train_loss,
+              borderColor: "red",
+              yAxisID: "y1",
+              fill: false,
+            },
+            {
+              label: "Training Accuracy",
+              data: data.train_acc,
+              borderColor: "blue",
+              yAxisID: "y2",
+              fill: false,
+            },
+            {
+              label: "Validation Loss",
+              data: data.val_loss,
+              borderColor: "orange",
+              yAxisID: "y1",
+              fill: false,
+            },
+            {
+              label: "Validation Accuracy",
+              data: data.val_acc,
+              borderColor: "green",
+              yAxisID: "y2",
+              fill: false,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          interaction: { mode: "index", intersect: false },
+          scales: {
+            y1: {
+              type: "linear",
+              position: "left",
+              title: { display: true, text: "Loss" }
+            },
+            y2: {
+              type: "linear",
+              position: "right",
+              title: { display: true, text: "Accuracy" },
+              grid: { drawOnChartArea: false }
+            }
+          },
+          plugins: {
+            title: { display: true, text: "Training Loss & Accuracy vs Epochs" }
+          }
+        }
+      });
+    }
+
+  } catch (err) {
+    status.innerText = "❌ Failed to start training.";
+    console.error(err);
+  }
+});
+
   </script>
 </body>
 </html>

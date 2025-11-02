@@ -37,3 +37,14 @@ async def train_model(data: dict, background_tasks: BackgroundTasks):
     lr = float(data.get("lr", 0.01))
     if taskname == 'regression':
         train_acc,train_loss,val_acc,val_loss=reg.train(traindl=traindl,valdl=valdl,epoches=epochs,lr=lr)
+        return JSONResponse({
+            "message": f"✅ {taskname} model training completed!",
+            "train_loss": train_loss,
+            "train_acc": train_acc,
+            "val_loss": val_loss,
+            "val_acc": val_acc,
+            "epochs": list(range(1, len(train_loss) + 1))
+        })
+
+# to run uvicorn main:app --reload
+

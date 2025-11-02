@@ -62,7 +62,9 @@ class Regression():
         testdl=DataLoader(testdataset,batch_size=16,shuffle=True)
         valdl=DataLoader(valdataset,batch_size=16,shuffle=True)
         return traindl,testdl,valdl
+    
     def train(self,traindl,valdl,learing_rate,epoches):
+        print('reg')
         model=regression(x=self.x)
         optimizer = torch.optim.SGD(model.parameters(), lr=learing_rate)
         critetion=nn.MSELoss()
@@ -96,6 +98,8 @@ class Regression():
                 val_acc.append(statistics.mean(va))
                 val_loss.append(statistics.mean(vl))
         return train_acc,train_loss,val_acc,val_loss
+    
+
 
 if __name__ == '__main__':
     obj = Regression()
