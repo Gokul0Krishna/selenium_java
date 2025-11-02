@@ -6,7 +6,7 @@ import time
 from reg import Regression
 from classi import Classification
 
-traindl,valdl,testdl=None,None,None
+traindl,valdl,testdl,taskname=None,None,None,None
 
 app = FastAPI()
 reg=Regression()
@@ -19,8 +19,9 @@ async def read_root(request: Request):
 
 @app.post("/data_process")
 async def run_task(data: dict, background_tasks: BackgroundTasks):
-    global traindl,testdl,valdl
+    global traindl,testdl,valdl,taskname
     task_name = data.get("task", "unknown")
+    taskname = task_name
     if task_name == "regression":
         background_tasks.add_task(reg.load_transform_data(),task_name)
         traindl,testdl,valdl = reg.load_transform_data()
@@ -28,3 +29,11 @@ async def run_task(data: dict, background_tasks: BackgroundTasks):
         background_tasks.add_task(clas.load_transform_data(),task_name )
         traindl,testdl,valdl = clas.load_transform_data()
     return JSONResponse({"message": f"✅{task_name}  completed in background!"})
+
+@app.post("/train")
+async def train_model(data: dict, background_tasks: BackgroundTasks):
+    global traindl,testdl,valdl
+    epochs = int(data.get("epochs", 10))
+    lr = float(data.get("lr", 0.01))
+    if taskname == 'regression':
+        train_acc,train_loss,val_acc,val_loss=reg.train(traindl=traindl,valdl=valdl,epoches=epochs,lr=lr)
