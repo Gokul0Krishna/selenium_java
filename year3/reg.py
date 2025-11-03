@@ -11,6 +11,8 @@ from sklearn.metrics import root_mean_squared_error
 import matplotlib.pyplot as pl
 import statistics
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 
 class Customdataset(Dataset):
     def __init__(self,a,b):
@@ -114,7 +116,7 @@ class Regression():
         fig.tight_layout()
         train_plot_path = f"year3/static/plots/regression_trian_plot.png"
         plt.savefig(train_plot_path)
-        print('pathsaved')
+        print('pathsaved1')
         plt.close()
 
         fig, ax1 = plt.subplots(figsize=(8, 5))
@@ -129,7 +131,7 @@ class Regression():
         plt.title("validation Loss and Accuracy vs Epochs")
         val_plot_path = f"year3/static/plots/regression_val_plot.png"
         plt.savefig(val_plot_path)
-        print('pathsaved')
+        print('pathsaved2')
         plt.close()
 
         self.model.eval()   
@@ -141,9 +143,11 @@ class Regression():
         plt.plot(ypred.numpy(),color='red',label='predicted')
         plt.grid(True)
         plt.title("predictied vs real data")
-        test_plot_path = f"year3/static/plots/regression_test_plot.png"
-        plt.savefig(test_plot_path)
+        train_view_plot_path = f"year3/static/plots/regression_train_view_plot.png"
+        plt.savefig(train_view_plot_path)
+        print('pathsaved3')
         plt.close()
+
 
         self.model.eval()   
         with torch.no_grad():
@@ -154,14 +158,15 @@ class Regression():
         plt.plot(ypred.numpy(),color='red',label='predicted')
         plt.grid(True)
         plt.title("predictied vs real data")
-        train_view_plot_path = f"year3/static/plots/regression_train_view_plot.png"
+        test_plot_path = f"year3/static/plots/regression_test_plot.png"
         plt.savefig(test_plot_path)
+        print('pathsaved4')
         plt.close()
 
-        return train_plot_path,val_plot_path,test_plot_path,train_view_plot_path
+        return train_plot_path, val_plot_path, test_plot_path, train_view_plot_path
 
 if __name__ == '__main__':
     obj = Regression()
     traindl,testdl,valdl=obj.load_transform_data()
-    train_acc,train_loss,val_acc,val_loss = obj.train(traindl=traindl,valdl=valdl,learing_rate=0.001,epoches=5)
-    train_plot_path,val_plot_path=obj.plot_train_val(train_acc=train_acc,train_loss=train_loss,val_acc=val_acc,val_loss=val_loss,epoches=5)
+    train_acc,train_loss,val_acc,val_loss = obj.train(traindl=traindl,valdl=valdl,learing_rate=0.001,epoches=5,hiddenlayer=15)
+    train_plot_path,val_plot_path,test_plot_path,train_view_plot_path=obj.plot_train_val(train_acc=train_acc,train_loss=train_loss,val_acc=val_acc,val_loss=val_loss,epoches=5,testdl=testdl,traindl=traindl)
