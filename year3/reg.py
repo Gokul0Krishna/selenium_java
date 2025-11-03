@@ -24,10 +24,10 @@ class Customdataset(Dataset):
         return self.x[index],self.y[index]
     
 class regression(nn.Module):
-    def __init__(self,x):
+    def __init__(self,x,hiddenlayer):
         super(regression,self).__init__()
-        self.Linear1=nn.Linear(x.shape[1],24)
-        self.Linear2=nn.Linear(24,1)
+        self.Linear1=nn.Linear(x.shape[1],hiddenlayer)
+        self.Linear2=nn.Linear(hiddenlayer,1)
 
     def forward(self,x):
         x=self.Linear1(x)
@@ -64,19 +64,19 @@ class Regression():
         valdl=DataLoader(valdataset,batch_size=16,shuffle=True)
         return traindl,testdl,valdl
     
-    def train(self,traindl,valdl,learing_rate,epoches):
+    def train(self,traindl,valdl,learing_rate,epoches,hiddenlayer):
         print('reg')
-        model=regression(x=self.x)
-        optimizer = torch.optim.SGD(model.parameters(), lr=learing_rate)
+        self.model=regression(x=self.x,hiddenlayer=hiddenlayer)
+        optimizer = torch.optim.SGD(self.model.parameters(), lr=learing_rate)
         critetion=nn.MSELoss()
         train_acc,train_loss=[],[]
         val_acc,val_loss=[],[]
         for i in range(epoches):
             l1,l2=0,0
-            model.train()
+            self.model.train()
             ta,tl=[],[]
             for values,labels in traindl:
-                ypred = model(values)
+                ypred = self.model(values)
                 tloss = critetion(ypred,labels)
                 optimizer.zero_grad()
                 tloss.backward()        
@@ -88,10 +88,10 @@ class Regression():
             train_loss.append(statistics.mean(tl))
 
             va,vl = [],[]
-            model.eval()   
+            self.model.eval()   
             with torch.no_grad():
                 for values,labels in valdl:
-                    ypred = model(values)
+                    ypred = self.model(values)
                     tloss = critetion(ypred,labels)
                     l2=labels.unsqueeze(1)
                     vl.append(int(tloss.detach().numpy()))
@@ -100,7 +100,7 @@ class Regression():
                 val_loss.append(statistics.mean(vl))
         return train_acc,train_loss,val_acc,val_loss
     
-    def plot_train_val(self,epoches,train_loss,train_acc,val_loss,val_acc):
+    def plot_train_val(self,epoches,train_loss,train_acc,val_loss,val_acc,testdl):
         fig, ax1 = plt.subplots(figsize=(8, 5))
         ax1.plot(range(epoches), train_loss, color='tab:red', label='Loss')
         ax1.set_xlabel("Epochs")
@@ -112,9 +112,11 @@ class Regression():
         ax2.tick_params(axis='y', labelcolor='tab:blue')
         plt.title("Training Loss and Accuracy vs Epochs")
         fig.tight_layout()
-        train_plot_path = f"static/plots/regression_trian_plot.png"
+        train_plot_path = f"year3/static/plots/regression_trian_plot.png"
         plt.savefig(train_plot_path)
+        print('pathsaved')
         plt.close()
+
         fig, ax1 = plt.subplots(figsize=(8, 5))
         ax1.plot(range(epoches), val_loss, color='tab:red', label='Loss')
         ax1.set_xlabel("Epochs")
@@ -125,13 +127,28 @@ class Regression():
         ax2.set_ylabel("Accuracy", color='tab:blue')
         ax2.tick_params(axis='y', labelcolor='tab:blue')
         plt.title("validation Loss and Accuracy vs Epochs")
-        val_plot_path = f"static/plots/regression_val_plot.png"
+        val_plot_path = f"year3/static/plots/regression_val_plot.png"
         plt.savefig(val_plot_path)
+        print('pathsaved')
         plt.close()
-        return train_plot_path,val_plot_path
+
+        self.model.eval()   
+        with torch.no_grad():
+            for values,labels in testdl:
+                ypred = self.model(values)
+        plt.figure(figsize=(6,6))
+        plt.plot(labels.numpy(),color='blue')
+        plt.plot(ypred.numpy(),color='red')
+        plt.grid(True)
+        plt.title("predictied vs real data")
+        test_plot_path = f"year3/static/plots/regression_test_plot.png"
+        plt.savefig(test_plot_path)
+        plt.close()
+
+        return train_plot_path,val_plot_path,test_plot_path
 
 if __name__ == '__main__':
     obj = Regression()
     traindl,testdl,valdl=obj.load_transform_data()
     train_acc,train_loss,val_acc,val_loss = obj.train(traindl=traindl,valdl=valdl,learing_rate=0.001,epoches=5)
-    print(train_acc[-1],train_loss[-1],val_acc[-1],val_loss[-1])
+    train_plot_path,val_plot_path=obj.plot_train_val(train_acc=train_acc,train_loss=train_loss,val_acc=val_acc,val_loss=val_loss,epoches=5)
