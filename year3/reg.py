@@ -100,7 +100,7 @@ class Regression():
                 val_loss.append(statistics.mean(vl))
         return train_acc,train_loss,val_acc,val_loss
     
-    def plot_train_val(self,epoches,train_loss,train_acc,val_loss,val_acc,testdl):
+    def plot_train_val(self,epoches,train_loss,train_acc,val_loss,val_acc,testdl,traindl):
         fig, ax1 = plt.subplots(figsize=(8, 5))
         ax1.plot(range(epoches), train_loss, color='tab:red', label='Loss')
         ax1.set_xlabel("Epochs")
@@ -108,7 +108,7 @@ class Regression():
         ax1.tick_params(axis='y', labelcolor='tab:red')
         ax2 = ax1.twinx()
         ax2.plot(range(epoches), train_acc, color='tab:blue', label='Accuracy')
-        ax2.set_ylabel("Accuracy", color='tab:blue')
+        ax2.set_ylabel("RMSE", color='tab:blue')
         ax2.tick_params(axis='y', labelcolor='tab:blue')
         plt.title("Training Loss and Accuracy vs Epochs")
         fig.tight_layout()
@@ -124,7 +124,7 @@ class Regression():
         ax1.tick_params(axis='y', labelcolor='tab:red')
         ax2 = ax1.twinx()
         ax2.plot(range(epoches), val_acc, color='tab:blue', label='Accuracy')
-        ax2.set_ylabel("Accuracy", color='tab:blue')
+        ax2.set_ylabel("RMSE", color='tab:blue')
         ax2.tick_params(axis='y', labelcolor='tab:blue')
         plt.title("validation Loss and Accuracy vs Epochs")
         val_plot_path = f"year3/static/plots/regression_val_plot.png"
@@ -134,18 +134,31 @@ class Regression():
 
         self.model.eval()   
         with torch.no_grad():
-            for values,labels in testdl:
+            for values,labels in traindl:
                 ypred = self.model(values)
         plt.figure(figsize=(6,6))
-        plt.plot(labels.numpy(),color='blue')
-        plt.plot(ypred.numpy(),color='red')
+        plt.plot(labels.numpy(),color='blue',label='truth')
+        plt.plot(ypred.numpy(),color='red',label='predicted')
         plt.grid(True)
         plt.title("predictied vs real data")
         test_plot_path = f"year3/static/plots/regression_test_plot.png"
         plt.savefig(test_plot_path)
         plt.close()
 
-        return train_plot_path,val_plot_path,test_plot_path
+        self.model.eval()   
+        with torch.no_grad():
+            for values,labels in testdl:
+                ypred = self.model(values)
+        plt.figure(figsize=(6,6))
+        plt.plot(labels.numpy(),color='blue',label='truth')
+        plt.plot(ypred.numpy(),color='red',label='predicted')
+        plt.grid(True)
+        plt.title("predictied vs real data")
+        train_view_plot_path = f"year3/static/plots/regression_train_view_plot.png"
+        plt.savefig(test_plot_path)
+        plt.close()
+
+        return train_plot_path,val_plot_path,test_plot_path,train_view_plot_path
 
 if __name__ == '__main__':
     obj = Regression()

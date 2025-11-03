@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Regression Model Training</title>
+  <title>Classification Model Training</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
   <div class="container">
-    <h1>Regression Model Configuration</h1>
+    <h1>Classification Model Configuration</h1>
 
-    <form action="/Regression" method="POST">
+    <form action="/Classification" method="POST">
       <label for="epochs">Epochs:</label>
       <input type="number" name="epochs" id="epochs" value="10" min="1" required>
 
@@ -34,15 +34,9 @@
         <img src="{{ url_for('static', filename=val_plot_path.split('static/')[1]) }}" width="450">
       </div>
     {% endif %}
-      {% if train_view_plot_path %}
-      <div class="plot-section">
-        <h3>Test Plot</h3>
-        <img src="{{ url_for('static', filename=train_view_plot_path.split('static/')[1]) }}" width="450">
-      </div>
-    {% endif %}
     {% if test_plot_path %}
       <div class="plot-section">
-        <h3>Test View Plot</h3>
+        <h3>Test Plot</h3>
         <img src="{{ url_for('static', filename=test_plot_path.split('static/')[1]) }}" width="450">
       </div>
     {% endif %}

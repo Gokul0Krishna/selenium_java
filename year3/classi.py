@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.optim as optim
 import statistics
 from sklearn.metrics import precision_score
+import matplotlib.pyplot as plt
 
 class Customdataset(Dataset):
     def __init__(self,a,b):
@@ -21,7 +22,7 @@ class Customdataset(Dataset):
         return self.x[index],self.y[index]
     
 class Classification(nn.Module):
-    def __init__(self,x:np.array,y:np.array,hiddenlayer:int):
+    def __init__(self,x,y,hiddenlayer:int):
         super(Classification,self).__init__()
         self.Linear1=nn.Linear(x.shape[1],hiddenlayer)
         self.Linear2=nn.Linear(hiddenlayer,y.shape[1])
@@ -32,7 +33,7 @@ class Classification(nn.Module):
         x=self.Linear2(x)
         return x
     
-class Classification():
+class Classification_model():
     def __init__(self):
         self.sc = StandardScaler()
     
@@ -87,7 +88,7 @@ class Classification():
                 l1=labels.unsqueeze(1)
                 ypred=torch.argmax(ypred,dim=1) 
                 tl.append(int(tloss.detach().numpy()))
-                ta.append(precision_score(l1.cpu().numpy(),ypred.cpu().numpy(),average='macro'))
+                ta.append(precision_score(l1.cpu().numpy(),ypred.cpu().numpy(),average='macro',zero_division=0))
             train_acc.append(statistics.mean(ta))
             train_loss.append(statistics.mean(tl))
             # print('trian')
@@ -103,14 +104,48 @@ class Classification():
                     l2=labels.unsqueeze(1)
                     ypred=torch.argmax(ypred,dim=1) 
                     vl.append(int(tloss.detach().numpy()))
-                    va.append(precision_score(l2.cpu().numpy(),ypred.cpu().numpy(),average='macro'))
+                    va.append(precision_score(l2.cpu().numpy(),ypred.cpu().numpy(),average='macro',zero_division=0))
                 val_acc.append(statistics.mean(va))
                 val_loss.append(statistics.mean(vl))
                 # print('test')
                 # print(mean_absolute_error(l2,ypred.detach().numpy()))
                 # print(tloss)
+        return train_acc,train_loss,val_acc,val_loss
+    
+    def plot_train_val(self,train_acc,train_loss,val_acc,val_loss,epoches):
+        fig, ax1 = plt.subplots(figsize=(8, 5))
+        ax1.plot(range(epoches), train_loss, color='tab:red', label='Loss')
+        ax1.set_xlabel("Epochs")
+        ax1.set_ylabel("Loss", color='tab:red')
+        ax1.tick_params(axis='y', labelcolor='tab:red')
+        ax2 = ax1.twinx()
+        ax2.plot(range(epoches), train_acc, color='tab:blue', label='Accuracy')
+        ax2.set_ylabel("Accuracy", color='tab:blue')
+        ax2.tick_params(axis='y', labelcolor='tab:blue')
+        plt.title("Training Loss and Accuracy vs Epochs")
+        fig.tight_layout()
+        train_plot_path = f"year3/static/plots/classification_trian_plot.png"
+        plt.savefig(train_plot_path)
+        print('pathsaved')
+        plt.close()
+
+        fig, ax1 = plt.subplots(figsize=(8, 5))
+        ax1.plot(range(epoches), val_loss, color='tab:red', label='Loss')
+        ax1.set_xlabel("Epochs")
+        ax1.set_ylabel("Loss", color='tab:red')
+        ax1.tick_params(axis='y', labelcolor='tab:red')
+        ax2 = ax1.twinx()
+        ax2.plot(range(epoches), val_acc, color='tab:blue', label='Accuracy')
+        ax2.set_ylabel("Accuracy", color='tab:blue')
+        ax2.tick_params(axis='y', labelcolor='tab:blue')
+        plt.title("Training Loss and Accuracy vs Epochs")
+        fig.tight_layout()
+        train_plot_path = f"year3/static/plots/classification_val_plot.png"
+        plt.savefig(train_plot_path)
+        print('pathsaved')
+        plt.close()
 
 if __name__ == '__main__':
-    obj = Classification()
+    obj = Classification_model()
     traindl,testdl,valdl=obj.load_transform_data()
-    train_acc,train_loss,val_acc,val_loss = obj.train(traindl=traindl,valdl=valdl,learing_rate=0.001,epoches=5,hiddenlayer=24)
+    train_acc,train_loss,val_acc,val_loss = obj.train(traindl=traindl,valdl=valdl,learing_rate=0.001,epoches=2,hiddenlayer=10)
