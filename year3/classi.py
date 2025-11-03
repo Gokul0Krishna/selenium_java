@@ -9,6 +9,9 @@ import torch.optim as optim
 import statistics
 from sklearn.metrics import precision_score
 import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 class Customdataset(Dataset):
     def __init__(self,a,b):
@@ -36,7 +39,7 @@ class Classification(nn.Module):
 class Classification_model():
     def __init__(self):
         self.sc = StandardScaler()
-    
+        self.pca = PCA()
     def load_transform_data(self):
         df = pd.read_csv(r'C:\Users\ASUS\OneDrive\Desktop\code\cp\javaproject\year3\weather_classification_data.csv')
         temp = pd.get_dummies(df['Cloud Cover'],dtype=int)
@@ -69,18 +72,18 @@ class Classification_model():
         return traindl,testdl,valdl
     
     def train(self,traindl,valdl,learing_rate,epoches,hiddenlayer):
-        model=Classification(x=self.x,y=self.y,hiddenlayer=hiddenlayer)
+        self.model=Classification(x=self.x,y=self.y,hiddenlayer=hiddenlayer)
         critetion=nn.CrossEntropyLoss()
-        optimizer=optim.Adam(model.parameters(),lr=learing_rate)
+        optimizer=optim.Adam(self.model.parameters(),lr=learing_rate)
         train_acc,train_loss=[],[]
         val_acc,val_loss=[],[]
         for i in range(epoches):
             l1,l2=0,0
-            model.train()
+            self.model.train()
             ta,tl=[],[]
             for values,labels in traindl:
                 labels=torch.argmax(labels,dim=1)
-                ypred = model(values)
+                ypred = self.model(values)
                 tloss = critetion(ypred,labels)
                 optimizer.zero_grad()
                 tloss.backward()        
@@ -95,11 +98,11 @@ class Classification_model():
             # print(mean_absolute_error(l1,ypred.detach().numpy()))  
             # print(tloss)
             va,vl = [],[]
-            model.eval()   
+            self.model.eval()   
             with torch.no_grad():
                 for values,labels in valdl:
                     labels=torch.argmax(labels,dim=1)
-                    ypred = model(values)
+                    ypred = self.model(values)
                     tloss = critetion(ypred,labels)
                     l2=labels.unsqueeze(1)
                     ypred=torch.argmax(ypred,dim=1) 
@@ -112,7 +115,7 @@ class Classification_model():
                 # print(tloss)
         return train_acc,train_loss,val_acc,val_loss
     
-    def plot_train_val(self,train_acc,train_loss,val_acc,val_loss,epoches):
+    def plot_train_val(self,train_acc,train_loss,val_acc,val_loss,epoches,testdl):
         fig, ax1 = plt.subplots(figsize=(8, 5))
         ax1.plot(range(epoches), train_loss, color='tab:red', label='Loss')
         ax1.set_xlabel("Epochs")
@@ -138,12 +141,39 @@ class Classification_model():
         ax2.plot(range(epoches), val_acc, color='tab:blue', label='Accuracy')
         ax2.set_ylabel("Accuracy", color='tab:blue')
         ax2.tick_params(axis='y', labelcolor='tab:blue')
-        plt.title("Training Loss and Accuracy vs Epochs")
+        plt.title("Validation Loss and Accuracy vs Epochs")
         fig.tight_layout()
-        train_plot_path = f"year3/static/plots/classification_val_plot.png"
-        plt.savefig(train_plot_path)
+        val_plot_path = f"year3/static/plots/classification_val_plot.png"
+        plt.savefig(val_plot_path)
         print('pathsaved')
         plt.close()
+
+        self.model.eval()
+        all_preds = []
+        all_labels = []
+
+        with torch.no_grad():
+            for values, labels in testdl:
+                labels = torch.argmax(labels, dim=1)  # true class indices
+                ypred = self.model(values)
+                ypred = torch.argmax(ypred, dim=1)   # predicted class indices
+                
+                all_labels.append(labels.cpu().numpy())
+                all_preds.append(ypred.cpu().numpy())
+
+        # Stack all batches into single arrays
+        y_true = np.hstack(all_labels)
+        y_pred = np.hstack(all_preds)
+        cm = confusion_matrix(y_true, y_pred)
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+        disp.plot(cmap='Blues')
+        cm_path = "year3/static/plots/confusion_matrix.png"
+        plt.title("Confusion Matrix on Validation Data")
+        plt.savefig(cm_path)   # save to file
+        plt.close()
+
+        acc = accuracy_score(y_true,y_pred)
+        return train_plot_path,val_plot_path,cm_path,acc
 
 if __name__ == '__main__':
     obj = Classification_model()

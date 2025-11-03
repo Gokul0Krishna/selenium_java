@@ -34,10 +34,16 @@
         <img src="{{ url_for('static', filename=val_plot_path.split('static/')[1]) }}" width="450">
       </div>
     {% endif %}
-    {% if test_plot_path %}
+    {% if cm_path %}
       <div class="plot-section">
-        <h3>Test Plot</h3>
-        <img src="{{ url_for('static', filename=test_plot_path.split('static/')[1]) }}" width="450">
+        <h3>Train View Plot</h3>
+        <img src="{{ url_for('static', filename=cm_path.split('static/')[1]) }}" width="450">
+      </div>
+    {% endif %}
+    {% if acc %}
+      <div class="acc_score">
+        <h3>Accuracy Score</h3>
+        <h2>{{acc}}</h2>
       </div>
     {% endif %}
   </div>
