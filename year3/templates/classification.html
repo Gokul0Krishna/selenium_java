@@ -10,16 +10,27 @@
 
     <form action="/Classification" method="POST">
       <label for="epochs">Epochs:</label>
-      <input type="number" name="epochs" id="epochs" value="10" min="1" required>
+      <input type="number" name="epochs" id="epochs"  min="1" required>
 
       <label for="learning_rate">Learning Rate:</label>
-      <input type="number" step="0.0001" name="learning_rate" id="learning_rate" value="0.001" required>
+      <input type="number" step="0.0001" name="learning_rate" id="learning_rate" required>
 
       <label for="hidden_layer">hidden_layer size:</label>
-      <input type="number" name="hidden_layer" id="hidden_layer" value="10" min="1" required>
+      <input type="number" name="hidden_layer" id="hidden_layer"  min="1" required>
 
       <button type="submit">Train Model</button>
     </form>
+<!-- 
+    <div id="loading" style="display:none; text-align:center; margin-top:20px;">
+      <img src="{{ url_for('static', filename='1484.gif') }}" width="100"><br>
+      <p><strong>Training model... Please wait.</strong></p>
+    </div> -->
+
+    {% if train_plot_path %}
+    <script>
+      alert("🎉 Model training completed successfully!");
+    </script>
+    {% endif %}
 
     {% if train_plot_path %}
       <div class="plot-section">
@@ -47,5 +58,12 @@
       </div>
     {% endif %}
   </div>
+  <!-- <script>
+    const form = document.getElementById('trainForm');
+    const loading = document.getElementById('loading');
+    form.addEventListener('submit', () => {
+      loading.style.display = 'block';
+    });
+  </script> -->
 </body>
 </html>
