@@ -10,13 +10,13 @@
 
     <form action="/Classification" method="POST">
       <label for="epochs">Epochs:</label>
-      <input type="number" name="epochs" id="epochs"  min="1" required>
+      <input type="number" name="epochs" id="epochs"  min="1" value={{epochs}} required>
 
       <label for="learning_rate">Learning Rate:</label>
-      <input type="number" step="0.0001" name="learning_rate" id="learning_rate" required>
+      <input type="number" step="0.0001" name="learning_rate" id="learning_rate" value={{learning_rate}} required>
 
       <label for="hidden_layer">hidden_layer size:</label>
-      <input type="number" name="hidden_layer" id="hidden_layer"  min="1" required>
+      <input type="number" name="hidden_layer" id="hidden_layer"  min="1" value={{hidden_layer}} required>
 
       <button type="submit">Train Model</button>
     </form>

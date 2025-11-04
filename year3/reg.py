@@ -144,6 +144,7 @@ class Regression():
         plt.grid(True)
         plt.title("predictied vs real data")
         train_view_plot_path = f"year3/static/plots/regression_train_view_plot.png"
+        plt.legend(loc='best')
         plt.savefig(train_view_plot_path)
         print('pathsaved3')
         plt.close()
@@ -160,6 +161,7 @@ class Regression():
         plt.title("predictied vs real data")
         test_plot_path = f"year3/static/plots/regression_test_plot.png"
         plt.savefig(test_plot_path)
+        plt.legend(loc='best')
         print('pathsaved4')
         plt.close()
 
